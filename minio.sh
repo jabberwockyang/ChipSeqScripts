@@ -1,0 +1,1 @@
+./mc cp --recursive obs/user58115/LC-P20240821043-novaseqXP_150PE测序/2024-09-10_12:37:58/Data/ /root/chipseq/fastq

@@ -29,3 +29,6 @@ which deeptools
 
 # Install sambamba
 conda install bioconda::sambamba
+
+# install fastp
+conda install -c bioconda fastp

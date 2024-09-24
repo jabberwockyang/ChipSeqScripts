@@ -21,22 +21,27 @@ for BAM_FILE in $BAM_DIR/*_e2e.sorted.bam; do
     PREFIX=$(echo $SAMPLE_NAME | cut -d'_' -f1)
     
     # Determine control file based on prefix
-    if [[ $PREFIX == "TNFa" ]]; then
-        CONTROL_FILE="${BAM_DIR}/Input_TNFa_e2e.sorted.bam"
-    elif [[ $PREFIX == "HaCaT" ]]; then
-        CONTROL_FILE="${BAM_DIR}/Input_HaCaT_e2e.sorted.bam"
-    else
-        echo "Unknown prefix for sample $SAMPLE_NAME"
+    # control file starts with Input_${PREFIX}
+    CONTROL_FILES=$(ls $BAM_DIR/Input_${PREFIX}*_e2e.sorted.bam)
+    
+    if [ -z "$CONTROL_FILES" ]; then
+        echo "No control files found for ${PREFIX} in ${BAM_DIR}"
         continue
     fi
     
-    # Define output directory and log file paths
-    OUTPUT_DIR="$PEAK_DIR/${SAMPLE_NAME}_e2e"
-    LOG_FILE="$OUTPUT_DIR.sorted.macs3.log"
-    
-    # Create output directory if it doesn't exist
-    mkdir -p $OUTPUT_DIR
-    
-    # Run MACS3 callpeak
-    macs3 callpeak -t $BAM_FILE -c $CONTROL_FILE -m 1 50 -f BAMPE -g $GENOME_SIZE -n ${SAMPLE_NAME}_e2e --outdir $OUTPUT_DIR 2> $LOG_FILE
+    for file in $CONTROL_FILES; do
+        CONTROL_FILE=$file
+        CONTROLBASENAME=$(basename $CONTROL_FILE _e2e.sorted.bam)
+        # Define output directory and log file paths
+        OUTPUT_DIR="$PEAK_DIR/${SAMPLE_NAME}_${CONTROLBASENAME}_e2e"
+        LOG_FILE="$OUTPUT_DIR.sorted.macs3.log"
+        
+        # Create output directory if it doesn't exist
+        mkdir -p $OUTPUT_DIR
+        
+        # Run MACS3 callpeak
+        macs3 callpeak -t $BAM_FILE -c $CONTROL_FILE -m 1 50 -f BAMPE -g $GENOME_SIZE -n ${SAMPLE_NAME}_e2e --outdir $OUTPUT_DIR 2> $LOG_FILE
+
+    done
+
 done
